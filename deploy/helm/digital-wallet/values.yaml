@@ -1,0 +1,91 @@
+nameOverride: ""
+fullnameOverride: ""
+
+imagePullSecrets: []
+# Example for a private JFrog Docker repository:
+# imagePullSecrets:
+#   - name: jfrog-pull-secret
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 10001
+  runAsGroup: 10001
+  fsGroup: 10001
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop: ["ALL"]
+
+walletService:
+  replicas: 2
+  image:
+    repository: jfrog.example.com/docker-local/digital-wallet/wallet-service
+    tag: "1.0.0"
+    pullPolicy: IfNotPresent
+  existingSecret: wallet-service-secrets
+  podAnnotations: {}
+  service:
+    port: 8081
+  env:
+    SERVER_PORT: "8081"
+    SPRING_KAFKA_BOOTSTRAP_SERVERS: "kafka-bootstrap:9092"
+    SPRING_DATA_REDIS_HOST: "redis-master"
+    SPRING_DATA_REDIS_PORT: "6379"
+    TRANSACTIONS_TOPIC: "transactions.events"
+    TRANSACTIONS_DLT_TOPIC: "transactions.events.DLT"
+    OUTBOX_POLL_INTERVAL_MS: "1000"
+    WALLET_DAILY_TRANSFER_LIMIT: "100000.00"
+    WALLET_MAX_SINGLE_TRANSFER: "50000.00"
+    WALLET_FRAUD_MAX_PER_MINUTE: "10"
+    WALLET_RATE_LIMIT_PER_MINUTE: "30"
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
+
+kycStatementService:
+  replicas: 2
+  image:
+    repository: jfrog.example.com/docker-local/digital-wallet/kyc-statement-service
+    tag: "1.0.0"
+    pullPolicy: IfNotPresent
+  existingSecret: kyc-statement-service-secrets
+  podAnnotations: {}
+  service:
+    port: 8082
+  env:
+    SERVER_PORT: "8082"
+    SPRING_KAFKA_BOOTSTRAP_SERVERS: "kafka-bootstrap:9092"
+    TRANSACTIONS_TOPIC: "transactions.events"
+    KAFKA_CONSUMER_GROUP: "kyc-statement-service"
+    S3_BUCKET: "digital-wallet-documents"
+    AWS_REGION: "ap-south-1"
+    S3_AUTO_CREATE_BUCKET: "false"
+    S3_UPLOAD_URL_MINUTES: "15"
+    S3_DOWNLOAD_URL_MINUTES: "10"
+    STATEMENT_PROJECTION_WAIT_SECONDS: "60"
+    STATEMENT_PROJECTION_POLL_MILLIS: "500"
+    NOTIFICATION_FROM_ADDRESS: "no-reply@wallet.example.com"
+    MAIL_HOST: "smtp-relay"
+    MAIL_PORT: "587"
+    SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: "true"
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
+
+# Set this to the annotation(s) required by your existing HashiCorp Vault integration.
+# Example Vault Agent Injector values can be supplied separately in each service's podAnnotations.
+# Secrets expected in the existing K8s Secret objects:
+# wallet-service-secrets: SPRING_DATASOURCE_URL, SPRING_DATASOURCE_USERNAME,
+#   SPRING_DATASOURCE_PASSWORD, INTERNAL_SERVICE_TOKEN
+# kyc-statement-service-secrets: SPRING_DATASOURCE_URL, SPRING_DATASOURCE_USERNAME,
+#   SPRING_DATASOURCE_PASSWORD, INTERNAL_SERVICE_TOKEN, AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY if not using IRSA/workload identity

@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "digital-wallet.fullname" . }}-wallet
+  labels:
+    {{- include "digital-wallet.labels" . | nindent 4 }}
+    app.kubernetes.io/component: wallet-service
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: {{ .Values.walletService.service.port }}
+      targetPort: http
+      protocol: TCP
+  selector:
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: wallet-service

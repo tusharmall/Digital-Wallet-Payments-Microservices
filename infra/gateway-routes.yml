@@ -1,0 +1,23 @@
+# Example Spring Cloud Gateway route fragment. Merge into your existing gateway's configuration.
+# Do not expose /internal/** through a public route. The gateway must remove client-supplied identity headers
+# and replace them with values derived from verified authentication claims.
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: wallet-service
+          uri: ${WALLET_SERVICE_URI:http://wallet-service:8081}
+          predicates:
+            - Path=/api/users/**,/api/wallets/**,/api/transfers/**
+          filters:
+            - RemoveRequestHeader=X-User-Id
+            - RemoveRequestHeader=X-User-Role
+            # Add your existing trusted JWT/session-to-header filter after validation.
+        - id: kyc-statement-service
+          uri: ${KYC_STATEMENT_SERVICE_URI:http://kyc-statement-service:8082}
+          predicates:
+            - Path=/api/kyc/**,/api/statements/**
+          filters:
+            - RemoveRequestHeader=X-User-Id
+            - RemoveRequestHeader=X-User-Role
+            # Add your existing trusted JWT/session-to-header filter after validation.

@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "digital-wallet.fullname" . }}-kyc-statement
+  labels:
+    {{- include "digital-wallet.labels" . | nindent 4 }}
+    app.kubernetes.io/component: kyc-statement-service
+spec:
+  replicas: {{ .Values.kycStatementService.replicas }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: kyc-statement-service
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: kyc-statement-service
+      annotations:
+        {{- toYaml .Values.kycStatementService.podAnnotations | nindent 8 }}
+    spec:
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: kyc-statement-service
+          image: "{{ .Values.kycStatementService.image.repository }}:{{ .Values.kycStatementService.image.tag }}"
+          imagePullPolicy: {{ .Values.kycStatementService.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.containerSecurityContext | nindent 12 }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.kycStatementService.service.port }}
+              protocol: TCP
+          envFrom:
+            - secretRef:
+                name: {{ .Values.kycStatementService.existingSecret | quote }}
+          env:
+            - name: WALLET_SERVICE_BASE_URL
+              value: "http://{{ include "digital-wallet.fullname" . }}-wallet:8081"
+            {{- range $key, $value := .Values.kycStatementService.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+          startupProbe:
+            httpGet:
+              path: /actuator/health
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 30
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: http
+            initialDelaySeconds: 25
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: http
+            initialDelaySeconds: 45
+            periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 3
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+          resources:
+            {{- toYaml .Values.kycStatementService.resources | nindent 12 }}
+      volumes:
+        - name: tmp
+          emptyDir: {}
