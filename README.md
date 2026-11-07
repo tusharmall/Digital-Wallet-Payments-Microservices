@@ -1,6 +1,6 @@
 # Digital Wallet & Payments Service
 
-> **Start here on Windows:** read [`docs/LOCAL_FIRST_WINDOWS.md`](docs/LOCAL_FIRST_WINDOWS.md). Start with Docker Compose and local MinIO; do not set up Helm, Kubernetes, a self-hosted GitHub runner, JFrog or AWS S3 yet.
+
 
 A portfolio-quality Spring Boot microservices project for demonstrating money movement, ledger consistency, idempotency, concurrency control, event-driven processing, S3 uploads and asynchronous statements.
 
