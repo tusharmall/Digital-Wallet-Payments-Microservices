@@ -4,6 +4,13 @@
 
 A portfolio-quality Spring Boot microservices project for demonstrating money movement, ledger consistency, idempotency, concurrency control, event-driven processing, S3 uploads and asynchronous statements.
 
+<img width="1916" height="1008" alt="Screenshot 2026-11-21 202209" src="https://github.com/user-attachments/assets/310ad1dc-e64d-47af-b103-2df391de2c6d" />
+<img width="1887" height="1010" alt="Screenshot 2026-11-21 202324" src="https://github.com/user-attachments/assets/0dee750f-e67c-496c-9bb7-6d13816fe9fd" />
+
+
+
+
+
 > **Important:** this is a learning/demo system, not a real financial product. Add identity-provider integration, compliance controls, penetration testing, key management, operational monitoring, and a regulated payment/funding integration before any production use. The `add-money` endpoint simulates funding; it does not charge a bank or card.
 
 ## Architecture
