@@ -1,11 +1,11 @@
 # Digital Wallet & Payments Service
 
-
-
 A portfolio-quality Spring Boot microservices project for demonstrating money movement, ledger consistency, idempotency, concurrency control, event-driven processing, S3 uploads and asynchronous statements.
 
 <img width="1916" height="1008" alt="Screenshot 2026-11-21 202209" src="https://github.com/user-attachments/assets/310ad1dc-e64d-47af-b103-2df391de2c6d" />
 <img width="1887" height="1010" alt="Screenshot 2026-11-21 202324" src="https://github.com/user-attachments/assets/0dee750f-e67c-496c-9bb7-6d13816fe9fd" />
+# KYC
+<img width="1886" height="977" alt="image" src="https://github.com/user-attachments/assets/9531f0b7-560e-4164-b62d-fef6bf55dc9f" />
 
 
 
